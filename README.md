@@ -1,1 +1,1 @@
-# SemaSK
+# SemaSK--A-Semantics-Spatial-Keyword-Queries-with-LLMS

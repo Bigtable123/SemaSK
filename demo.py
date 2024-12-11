@@ -107,16 +107,7 @@ class ChatbotWithRetrieval:
 
         rag_prompt = ChatPromptTemplate.from_messages(
             [
-                (
-                    "system",
-                    "You are an assistant for location information sorting task. Below is the location information retrieved from \
-                    the database which will be given to you in JSON format. You are asked to help me filter and sort this information based on the questions asked.\
-                    You first need to determine whether the information is relevant to the question, and then sort all the relevant information. \
-                    The ones that best match the question and help answer it have the highest priority. The format of your output must be a python dictionary, \
-                    where key is the name of the location and value is the reason why you chose this location and ranked it here.\
-                    The location with the highest priority is sorted the higher, i.e. index is 0. Please note that there can be more than one result in the dictionary,\
-                    if the information about a location can only partially match the question asked, you can also put him in the dictionary, \
-                    but specify the advantages and disadvantages of this place in the value of the dictionary",
+                ("system","You are an assistant for location information sorting tasks. Below is the location information retrieved from the database, which will be given to you in JSON format. You are asked to filter and sort this information based on the question asked. You first need to determine whether the information is relevant to the question, and then sort all the relevant information. The ones that best match the question and help answer it have the highest priority. The format of your output must be a Python dictionary, where the key is the name of the location and the value is the reason why you chose this location and ranked it there. The location with the highest priority is placed higher, i.e., index is 0. Please note that there could be more than one result in the dictionary. If the information about a location could only partially match the question asked, you could also put it in the dictionary, but specify the advantages and disadvantages of this place in the value of the dictionary. If you could not complete the task or do not know the answer, just return the empty dictionary and do not refer to any additional knowledge"
                 ),
                 ("human", "information:{context}\nquestion:{question}"),
             ]
@@ -158,7 +149,6 @@ class ChatbotWithRetrieval:
         data_for_table = []
         normalized_rank_dict = {self.normalize_text(key): (value, key) for key, value in rank_dict.items()}
         print("ccccccccccccccccccccccccc")
-
         for document in ans:
             normalized_place_name = self.normalize_text(document.metadata['name'])
 
@@ -192,7 +182,17 @@ class ChatbotWithRetrieval:
                     'Latitude':latitude,
                     "Details": rank_value,
                 })
-            else:
+
+        for document in ans:
+            normalized_place_name = self.normalize_text(document.metadata['name'])
+            longitude = document.metadata['longitude']
+            latitude = document.metadata['latitude']
+            original_name = document.metadata['name']
+            stars= document.metadata['stars']
+            categorie = document.metadata['categories']
+            address= document.metadata['address']
+            hours = document.metadata['hours']
+            if normalized_place_name not in normalized_rank_dict:
                 text = "This is what the vector search looks up, our system AI doesn't recommend this place, but you can check it out as well."
                 coordinates_dict[original_name] = {
                     'longitude': longitude,
@@ -431,7 +431,7 @@ class ChatbotWithRetrieval:
 bot = ChatbotWithRetrieval()
 
 df2 = pd.read_csv(full_path)
-suburbs = unique_neighborhoods = df2['new_neighborhood'].dropna().unique().tolist()
+suburbs = unique_neighborhoods = df2['neighborhood'].dropna().unique().tolist()
 
 with gr.Blocks() as demo:
     gr.Markdown("# SemaSK")

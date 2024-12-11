@@ -20,9 +20,9 @@ from math import radians, cos
 import numpy as np
 
 
-# Change api key
+# Insert api key
 os.environ["OPENAI_API_KEY"] = "your_api_key"
-# Get from the api key from https://geocode.maps.co/
+# Get this api key from https://geocode.maps.co/
 geo_api_key = "your_api_key"
 
 # Change the path from here

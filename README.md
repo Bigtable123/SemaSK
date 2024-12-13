@@ -50,12 +50,12 @@ Existing spatial keyword querying methods have focused primarily on efficiency a
 - `query/`: Contains scripts for generating the initial test set queries.
 - `test/`: Includes code for testing different systems within the project.
 
-## Authors
+<!-- ## Authors
 
 - **Zesong Zhang**
 - **Jianzhong Qi**
 
-*Both authors are affiliated with the University of Melbourne.*
+*Both authors are affiliated with the University of Melbourne.* -->
 
 ## Contact
 

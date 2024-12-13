@@ -16,7 +16,9 @@ Existing spatial keyword querying methods have focused primarily on efficiency a
 
    Ensure you have Python installed. Then, install the necessary packages using:
 
+   ```bash
    pip install -r requirements.txt
+
    ```
 
 ## Setup and Running the Project

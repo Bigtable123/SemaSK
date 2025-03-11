@@ -2,11 +2,8 @@ import gradio as gr
 import os
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import Qdrant
-from langchain.memory import ConversationSummaryMemory
 from langchain_community.document_loaders.csv_loader import CSVLoader
-from operator import itemgetter
 from qdrant_client import models
-from langchain_core.runnables import chain
 from langchain_core.output_parsers import StrOutputParser
 from langchain_openai import ChatOpenAI
 import requests
@@ -16,8 +13,9 @@ import json
 import re
 import folium
 import pandas as pd
-from math import radians, cos
+from math import radians
 import numpy as np
+import shutil
 
 
 # Insert api key
@@ -28,9 +26,11 @@ geo_api_key = "your_api_key"
 # Change the path from here
 input_path = 'your_path'
 full_path='ypur_path'
+vectorDB_path = 'vectorDB'
 
 # Select a city name form one of [Philadelphia,Indianapolis,Santa Barbara,Saint Louis,Nashville]
 city_selected = 'Indianapolis'
+
 
 
 
@@ -96,11 +96,17 @@ class ChatbotWithRetrieval:
             doc.metadata['longitude'] = float(doc.metadata['longitude'])
             doc.metadata['latitude'] = float(doc.metadata['latitude'])
 
+        if os.path.exists(vectorDB_path):
+            shutil.rmtree(vectorDB_path)
+
+        if not os.path.exists(vectorDB_path):
+            os.makedirs(vectorDB_path)
+
         # store data in vector database
         self.vectorstore = Qdrant.from_documents(
             documents=data, 
             embedding=self.embeddings, 
-            path = '/Users/victor/Desktop/vectorDB2', 
+            path = vectorDB_path, 
             collection_name="yelp_colls",
             force_recreate=False) 
 
@@ -119,7 +125,7 @@ class ChatbotWithRetrieval:
 
 
 
-    def get_coordinates(self, suburb, city='Saint Louis'):
+    def get_coordinates(self, suburb, city ):
         city_info = self.cities_info[city]
         state = city_info['state']
 
@@ -250,7 +256,7 @@ class ChatbotWithRetrieval:
     
 
     def get_response(self, user_input, suburb):  
-        latitude, longitude = self.get_coordinates(suburb)
+        latitude, longitude = self.get_coordinates(suburb,city=city_selected)
         print("the coordinates is ..")
         print(latitude)
         print(longitude)
@@ -328,11 +334,11 @@ class ChatbotWithRetrieval:
         if rank_dict:
             best_key, best_value = rank_list[0]
             if(len(rank_list)==1):
-                self.conversation_history += f"The place that best fits your question is {best_key}. {best_value} \n"
+                self.conversation_history = f"The place that best fits your question is {best_key}. {best_value} \n"
             else:
-                self.conversation_history += f"The place that best fits your question is {best_key}. {best_value}There are a number of other places that may be of interest to you, please refer to the map.\n"
+                self.conversation_history = f"The place that best fits your question is {best_key}. {best_value}There are a number of other places that may be of interest to you, please refer to the map.\n"
         else:
-            self.conversation_history += f"Sorry, we didn't find a suitable location in our database.\n"
+            self.conversation_history = f"Sorry, we didn't find a suitable location in our database.\n"
             final_map_html = self.m._repr_html_()
             final_process_text = "AI processing is complete! Our system doesn't have any recommended locations."
             return self.conversation_history,  final_process_text, final_map_html, None
